@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import {
   LayoutDashboard,
   Package,
+  UserCog,
   ArrowLeftRight,
   FileBarChart,
   Bell,
@@ -24,6 +25,7 @@ const navItems = [
   { to: '/inventory', icon: Package, label: 'Inventory' },
   { to: '/transactions', icon: ArrowLeftRight, label: 'Transactions' },
   { to: '/reports', icon: FileBarChart, label: 'Reports' },
+  { to: '/profile', icon: UserCog, label: 'Profile' },
 ];
 
 const AppLayout = ({ children }: AppLayoutProps) => {
