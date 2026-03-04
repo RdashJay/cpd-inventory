@@ -7,6 +7,12 @@ export const mockUser: User = {
   role: 'admin',
 };
 
+export const mockUsers: User[] = [
+  { id: '1', name: 'Alex Morgan', email: 'alex@warehouse.io', role: 'admin' },
+  { id: '2', name: 'Sam Rivera', email: 'sam@warehouse.io', role: 'staff' },
+  { id: '3', name: 'Jordan Lee', email: 'jordan@warehouse.io', role: 'staff' },
+];
+
 export const mockItems: InventoryItem[] = [
   { id: '1', name: 'Industrial Bearing 6205', sku: 'BRG-6205', category: 'Raw Materials', quantity: 245, minQuantity: 50, supplier: 'SKF Industries', dateReceived: '2026-02-15', location: 'A1-R3-B2', unitPrice: 12.50, status: 'in-stock' },
   { id: '2', name: 'Arduino Mega 2560', sku: 'ELC-ARD-2560', category: 'Electronics', quantity: 8, minQuantity: 20, supplier: 'DigiParts Co.', dateReceived: '2026-01-28', location: 'B2-R1-B5', unitPrice: 38.90, status: 'low-stock' },

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useInventory } from '@/contexts/InventoryContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { InventoryItem, CATEGORIES } from '@/types/inventory';
-import { Search, Plus, Edit2, Trash2, ArrowUpDown, Filter, Package } from 'lucide-react';
+import { Search, Plus, Edit2, Trash2, Package } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -24,6 +25,7 @@ const emptyItem = {
 
 const Inventory = () => {
   const { items, addItem, updateItem, deleteItem } = useInventory();
+  const { isAdmin } = useAuth();
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -74,9 +76,11 @@ const Inventory = () => {
           <h1 className="page-header">Inventory</h1>
           <p className="text-sm text-muted-foreground mt-1">{items.length} items · {filtered.length} shown</p>
         </div>
-        <Button onClick={openAdd} className="bg-accent text-accent-foreground hover:bg-accent/90">
-          <Plus className="h-4 w-4 mr-2" /> Add Item
-        </Button>
+        {isAdmin && (
+          <Button onClick={openAdd} className="bg-accent text-accent-foreground hover:bg-accent/90">
+            <Plus className="h-4 w-4 mr-2" /> Add Item
+          </Button>
+        )}
       </div>
 
       {/* Filters */}
@@ -111,9 +115,10 @@ const Inventory = () => {
               <th className="text-left px-4 py-3 font-medium text-muted-foreground">Item</th>
               <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden md:table-cell">Category</th>
               <th className="text-left px-4 py-3 font-medium text-muted-foreground">Qty</th>
+              <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden md:table-cell">Reorder Lvl</th>
               <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden lg:table-cell">Location</th>
               <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden sm:table-cell">Status</th>
-              <th className="text-right px-4 py-3 font-medium text-muted-foreground">Actions</th>
+              {isAdmin && <th className="text-right px-4 py-3 font-medium text-muted-foreground">Actions</th>}
             </tr>
           </thead>
           <tbody className="divide-y">
@@ -125,27 +130,30 @@ const Inventory = () => {
                 </td>
                 <td className="px-4 py-3 hidden md:table-cell text-muted-foreground">{item.category}</td>
                 <td className="px-4 py-3 font-mono font-medium">{item.quantity}</td>
+                <td className="px-4 py-3 hidden md:table-cell font-mono text-muted-foreground">{item.minQuantity}</td>
                 <td className="px-4 py-3 hidden lg:table-cell font-mono text-xs text-muted-foreground">{item.location}</td>
                 <td className="px-4 py-3 hidden sm:table-cell">
                   <Badge variant="outline" className={statusStyles[item.status]}>
                     {item.status.replace('-', ' ')}
                   </Badge>
                 </td>
-                <td className="px-4 py-3 text-right">
-                  <div className="flex items-center justify-end gap-1">
-                    <button onClick={() => openEdit(item)} className="p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
-                      <Edit2 className="h-3.5 w-3.5" />
-                    </button>
-                    <button onClick={() => setDeleteConfirm(item.id)} className="p-1.5 rounded hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive">
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                </td>
+                {isAdmin && (
+                  <td className="px-4 py-3 text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      <button onClick={() => openEdit(item)} className="p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
+                        <Edit2 className="h-3.5 w-3.5" />
+                      </button>
+                      <button onClick={() => setDeleteConfirm(item.id)} className="p-1.5 rounded hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive">
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </td>
+                )}
               </tr>
             ))}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
+                <td colSpan={isAdmin ? 7 : 6} className="px-4 py-12 text-center text-muted-foreground">
                   <Package className="h-8 w-8 mx-auto mb-2 opacity-40" />
                   No items found
                 </td>
@@ -191,7 +199,7 @@ const Inventory = () => {
                 <Input type="number" min={0} value={editingItem?.quantity ?? 0} onChange={e => updateField('quantity', parseInt(e.target.value) || 0)} />
               </div>
               <div className="space-y-2">
-                <Label>Min Qty</Label>
+                <Label>Reorder Level</Label>
                 <Input type="number" min={0} value={editingItem?.minQuantity ?? 0} onChange={e => updateField('minQuantity', parseInt(e.target.value) || 0)} />
               </div>
               <div className="space-y-2">
