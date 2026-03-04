@@ -12,6 +12,7 @@ import {
   Menu,
   X,
   Warehouse,
+  Users,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useInventory } from '@/contexts/InventoryContext';
@@ -20,21 +21,24 @@ interface AppLayoutProps {
   children: React.ReactNode;
 }
 
-const navItems = [
-  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/inventory', icon: Package, label: 'Inventory' },
-  { to: '/transactions', icon: ArrowLeftRight, label: 'Transactions' },
-  { to: '/reports', icon: FileBarChart, label: 'Reports' },
-  { to: '/profile', icon: UserCog, label: 'Profile' },
-];
-
 const AppLayout = ({ children }: AppLayoutProps) => {
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
   const { items } = useInventory();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const lowStockCount = items.filter(i => i.status === 'low-stock' || i.status === 'out-of-stock').length;
+
+  const navItems = [
+    { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    { to: '/inventory', icon: Package, label: 'Inventory' },
+    { to: '/transactions', icon: ArrowLeftRight, label: 'Transactions' },
+    ...(isAdmin ? [
+      { to: '/reports', icon: FileBarChart, label: 'Reports' },
+      { to: '/users', icon: Users, label: 'Users' },
+    ] : []),
+    { to: '/profile', icon: UserCog, label: 'Profile' },
+  ];
 
   const handleLogout = () => {
     logout();
@@ -43,14 +47,11 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      {/* Mobile overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 z-40 bg-foreground/50 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Sidebar */}
       <aside className={`gradient-sidebar fixed inset-y-0 left-0 z-50 flex w-64 flex-col transition-transform duration-300 lg:static lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        {/* Logo */}
         <div className="flex h-16 items-center gap-3 border-b border-sidebar-border px-5">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg gradient-accent">
             <Warehouse className="h-5 w-5 text-accent-foreground" />
@@ -64,7 +65,6 @@ const AppLayout = ({ children }: AppLayoutProps) => {
           </button>
         </div>
 
-        {/* Nav */}
         <nav className="flex-1 space-y-1 px-3 py-4">
           {navItems.map(({ to, icon: Icon, label }) => (
             <NavLink
@@ -85,7 +85,6 @@ const AppLayout = ({ children }: AppLayoutProps) => {
           ))}
         </nav>
 
-        {/* User */}
         <div className="border-t border-sidebar-border p-4">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-sidebar-accent text-sm font-semibold text-sidebar-primary">
@@ -102,9 +101,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         </div>
       </aside>
 
-      {/* Main */}
       <div className="flex flex-1 flex-col overflow-hidden">
-        {/* Top bar */}
         <header className="flex h-16 items-center gap-4 border-b bg-card px-4 lg:px-6">
           <button className="lg:hidden text-foreground" onClick={() => setSidebarOpen(true)}>
             <Menu className="h-5 w-5" />
@@ -120,7 +117,6 @@ const AppLayout = ({ children }: AppLayoutProps) => {
           </button>
         </header>
 
-        {/* Content */}
         <main className="flex-1 overflow-y-auto p-4 lg:p-6">
           {children}
         </main>

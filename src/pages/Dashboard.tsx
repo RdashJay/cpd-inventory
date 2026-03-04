@@ -10,13 +10,15 @@ const Dashboard = () => {
   const totalValue = items.reduce((sum, i) => sum + i.quantity * i.unitPrice, 0);
   const lowStockItems = items.filter(i => i.status === 'low-stock');
   const outOfStockItems = items.filter(i => i.status === 'out-of-stock');
+  const totalStockIn = transactions.filter(t => t.type === 'stock-in').reduce((sum, t) => sum + t.quantity, 0);
+  const totalStockOut = transactions.filter(t => t.type === 'stock-out').reduce((sum, t) => sum + t.quantity, 0);
   const recentTx = transactions.slice(0, 8);
 
   const stats = [
     { label: 'Total Items', value: totalItems.toLocaleString(), icon: Package, color: 'text-accent' },
-    { label: 'Total Value', value: `$${totalValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}`, icon: DollarSign, color: 'text-success' },
-    { label: 'Low Stock', value: lowStockItems.length, icon: AlertTriangle, color: 'text-warning' },
-    { label: 'Out of Stock', value: outOfStockItems.length, icon: XCircle, color: 'text-destructive' },
+    { label: 'Total Stock In', value: totalStockIn.toLocaleString(), icon: ArrowDownRight, color: 'text-success' },
+    { label: 'Total Stock Out', value: totalStockOut.toLocaleString(), icon: ArrowUpRight, color: 'text-warning' },
+    { label: 'Low Stock Alerts', value: lowStockItems.length + outOfStockItems.length, icon: AlertTriangle, color: 'text-destructive' },
   ];
 
   return (
@@ -87,7 +89,7 @@ const Dashboard = () => {
                     {item.status === 'out-of-stock' ? 'Out' : item.quantity}
                   </Badge>
                 </div>
-                <p className="text-xs text-muted-foreground mt-0.5 font-mono">{item.sku} · Min: {item.minQuantity}</p>
+                <p className="text-xs text-muted-foreground mt-0.5 font-mono">{item.sku} · Reorder: {item.minQuantity}</p>
               </div>
             ))}
             {lowStockItems.length === 0 && outOfStockItems.length === 0 && (
